@@ -18,7 +18,7 @@ class MainActivity : Activity() {
 }
 
 val acnlTracks = hashMapOf<Int,Int>(
-    0 to R.raw.nl1am,
+    0 to R.raw.nl12am,
     1 to R.raw.nl2am,
     2 to R.raw.nl3am,
     3 to R.raw.nl4am,
@@ -29,7 +29,7 @@ val acnlTracks = hashMapOf<Int,Int>(
     8 to R.raw.nl9am,
     9 to R.raw.nl10am,
     10 to R.raw.nl11am,
-    11 to R.raw.nl12am,
+    11 to R.raw.nl12pm,
     12 to R.raw.nl1pm,
     13 to R.raw.nl2pm,
     14 to R.raw.nl3pm,
@@ -41,5 +41,5 @@ val acnlTracks = hashMapOf<Int,Int>(
     20 to R.raw.nl9pm,
     21 to R.raw.nl10pm,
     22 to R.raw.nl11pm,
-    23 to R.raw.nl12pm
+    23 to R.raw.nl1am
 )
