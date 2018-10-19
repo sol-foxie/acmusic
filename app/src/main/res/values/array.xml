@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinnerItems">
+        <item>1am</item>
+        <item>2am</item>
+        <item>3am</item>
+        <item>4am</item>
+        <item>5am</item>
+        <item>6am</item>
+        <item>7am</item>
+        <item>8am</item>
+        <item>9am</item>
+        <item>10am</item>
+        <item>11am</item>
+        <item>12am</item>
+        <item>1pm</item>
+        <item>2pm</item>
+        <item>3pm</item>
+        <item>4pm</item>
+        <item>5pm</item>
+        <item>6pm</item>
+        <item>7pm</item>
+        <item>8pm</item>
+        <item>9pm</item>
+        <item>10pm</item>
+        <item>11pm</item>
+        <item>12pm</item>
+    </string-array>
+</resources>
