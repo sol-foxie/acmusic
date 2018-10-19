@@ -17,16 +17,15 @@ class MusicManager(private val ctx: Context, private val spinner: Spinner, priva
     }
 
     private fun update() {
-        val hourIndex =  getHour24()
-        changeTracks(tracks[hourIndex] ?: 0)
-        spinner.setSelection(hourIndex)
+        changeTracks(tracks[getHour24()] ?: 0)
+        spinner.setSelection(getHour24())
     }
 
     private fun changeTracks(trackNo: Int) {
         player?.discard()
 
         player = MediaPlayer.create(ctx,trackNo)
-        player?.setOnCompletionListener(this)
+        player!!.setOnCompletionListener(this)
         player!!.start()
     }
 
