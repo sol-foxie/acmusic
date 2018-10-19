@@ -17,7 +17,6 @@ class MusicManager(private val ctx: Context, private val spinner: Spinner, priva
     }
 
     private fun update() {
-        println(getHour24())
         val hourIndex =  getHour24()
         changeTracks(tracks[hourIndex] ?: 0)
         spinner.setSelection(hourIndex)
