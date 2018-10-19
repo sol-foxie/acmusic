@@ -15,6 +15,10 @@ class MainActivity : Activity() {
         jukebox.onItemSelectedListener = manager
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
 }
 
 val acnlTracks = hashMapOf<Int,Int>(
