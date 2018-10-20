@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaPlayer
+import android.os.SystemClock
 import java.util.*
 
 
@@ -40,7 +41,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
     }
 
     private fun scheduleNext() {
-        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,  System.currentTimeMillis() + msToNextHour(), "acmusic", this, null)
+        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,  SystemClock.elapsedRealtime() + msToNextHour(), "acmusic", this, null)
     }
 
     override fun onReceive(p0: Context?, p1: Intent?) {
