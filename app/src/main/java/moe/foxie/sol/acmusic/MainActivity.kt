@@ -25,8 +25,10 @@ class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicManage
     }
 
     override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, pos: Int, row: Long) {
-        require(adapterView!!.id == jukebox.id)
-        manager!!.changeTrackNo(row.toInt())
+        if (row.toInt() != manager!!.getTrackID()) {
+            require(adapterView!!.id == jukebox.id)
+            manager!!.changeTrackNo(row.toInt())
+        }
     }
 
     override fun onNothingSelected(adapterView: AdapterView<*>?) {
