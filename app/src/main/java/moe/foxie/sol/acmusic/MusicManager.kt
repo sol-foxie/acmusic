@@ -44,7 +44,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
         alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,  SystemClock.elapsedRealtime() + msToNextHour(), "acmusic", this, null)
     }
 
-    override fun onReceive(p0: Context?, p1: Intent?) {
+    override fun onReceive(ctx: Context?, intent: Intent?) {
         alarmManager.cancel(this)
         scheduleNext()
     }
