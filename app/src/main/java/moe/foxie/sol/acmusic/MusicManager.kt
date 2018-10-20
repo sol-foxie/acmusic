@@ -10,7 +10,7 @@ import android.os.SystemClock
 import java.util.*
 
 
-class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
+class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,Weather>,Int>)
     :BroadcastReceiver(), AlarmManager.OnAlarmListener  {
 
     private var player: MediaPlayer? = null
@@ -28,7 +28,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
 
     fun changeTrackNo(trackNo: Int) {
         this.trackNo = trackNo
-        changeTracks(tracks[trackNo] ?: 0)
+        changeTracks(tracks[Pair(trackNo,SUNNY)] ?: 0)
     }
     private fun changeTracks(trackRes: Int) {
         player?.discard()
