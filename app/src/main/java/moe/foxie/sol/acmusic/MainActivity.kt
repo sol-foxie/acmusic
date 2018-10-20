@@ -3,20 +3,37 @@ package moe.foxie.sol.acmusic
 import android.app.Activity
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : Activity() {
+class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicManager.TrackChangeListener {
+
+    private var manager: MusicManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        manager = MusicManager(this, acnlTracks)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val manager = MusicManager(this, jukebox, acnlTracks)
-        jukebox.onItemSelectedListener = manager
+        jukebox.onItemSelectedListener = this
     }
 
     override fun onResume() {
         super.onResume()
+        jukebox.setSelection(manager!!.getTrackID())
+    }
+
+    override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, pos: Int, row: Long) {
+        require(adapterView!!.id == jukebox.id)
+        manager!!.changeTrackNo(row.toInt())
+    }
+
+    override fun onNothingSelected(adapterView: AdapterView<*>?) {
+    }
+
+    override fun trackDidChange() {
+        jukebox.setSelection(manager!!.getTrackID())
     }
 
 }

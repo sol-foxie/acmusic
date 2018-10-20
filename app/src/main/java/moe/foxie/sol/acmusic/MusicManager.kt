@@ -3,57 +3,50 @@ package moe.foxie.sol.acmusic
 import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.media.MediaPlayer
-import android.view.View
-import android.widget.AdapterView
-import android.widget.Spinner
 import java.util.*
 
 
-class MusicManager(private val ctx: Context, private val spinner: Spinner, private val tracks: Map<Int,Int>)
-    :AdapterView.OnItemSelectedListener, MediaPlayer.OnCompletionListener, AlarmManager.OnAlarmListener  {
+class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
+    :AlarmManager.OnAlarmListener  {
 
     private var player: MediaPlayer? = null
     private val alarmManager = ctx.getSystemService(AlarmManager::class.java)
 
+    var listener: TrackChangeListener? = null
+
+    private var trackNo: Int = -1
+    fun getTrackID(): Int = trackNo
+
     init {
         onAlarm()
+    }
+
+    fun changeTrackNo(trackNo: Int) {
+        this.trackNo = trackNo
+        changeTracks(tracks[trackNo] ?: 0)
+    }
+    private fun changeTracks(trackRes: Int) {
+        player?.discard()
+
+        player = MediaPlayer.create(ctx,trackRes)
+        player!!.isLooping = true
+        player!!.start()
+
+        listener?.trackDidChange()
     }
 
     private fun scheduleNext() {
         alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,  System.currentTimeMillis() + msToNextHour(), "acmusic", this, null)
     }
 
-    private fun update() {
-        changeTracks(tracks[getHour24()] ?: 0)
-        spinner.setSelection(getHour24())
-    }
-
-    private fun changeTracks(trackNo: Int) {
-        player?.discard()
-
-        player = MediaPlayer.create(ctx,trackNo)
-        player!!.isLooping = true
-        player!!.start()
-    }
-
-    override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, pos: Int, row: Long) {
-        require(adapterView!!.id == spinner.id)
-        changeTracks(tracks[row.toInt()] ?: 0)
-    }
-
-    override fun onNothingSelected(adapterView: AdapterView<*>?) {
-        player?.stop()
-    }
-
-    override fun onCompletion(player: MediaPlayer?) {
-    }
-
     override fun onAlarm() {
-        update()
+        changeTrackNo(getHour24())
         scheduleNext()
+    }
+
+    interface TrackChangeListener {
+        fun trackDidChange()
     }
 }
 
@@ -68,3 +61,4 @@ fun getHour24() = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
 fun msToNextHour(): Long {
     return 3600000 - Date().time % 3600000
 }
+
