@@ -46,7 +46,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
 
     override fun onReceive(ctx: Context?, intent: Intent?) {
         alarmManager.cancel(this)
-        scheduleNext()
+        onAlarm()
     }
 
     override fun onAlarm() {
