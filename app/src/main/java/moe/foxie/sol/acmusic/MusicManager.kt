@@ -45,6 +45,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
     }
 
     override fun onReceive(ctx: Context?, intent: Intent?) {
+        require(intent!!.action.equals(Intent.ACTION_TIME_CHANGED))
         alarmManager.cancel(this)
         onAlarm()
     }
