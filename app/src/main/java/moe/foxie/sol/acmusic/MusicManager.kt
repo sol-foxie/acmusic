@@ -3,12 +3,14 @@ package moe.foxie.sol.acmusic
 import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaPlayer
 import java.util.*
 
 
 class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
-    :AlarmManager.OnAlarmListener  {
+    :BroadcastReceiver(), AlarmManager.OnAlarmListener  {
 
     private var player: MediaPlayer? = null
     private val alarmManager = ctx.getSystemService(AlarmManager::class.java)
@@ -20,6 +22,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
 
     init {
         onAlarm()
+        ctx.registerReceiver(this,IntentFilter(Intent.ACTION_TIME_CHANGED))
     }
 
     fun changeTrackNo(trackNo: Int) {
@@ -38,6 +41,11 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Int,Int>)
 
     private fun scheduleNext() {
         alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,  System.currentTimeMillis() + msToNextHour(), "acmusic", this, null)
+    }
+
+    override fun onReceive(p0: Context?, p1: Intent?) {
+        alarmManager.cancel(this)
+        scheduleNext()
     }
 
     override fun onAlarm() {
