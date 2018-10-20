@@ -8,8 +8,8 @@ val SUNNY = Weather.SUNNY
 val RAINY = Weather.RAINY
 val SNOWY = Weather.SNOWY
 
-val acnlTracks = hashMapOf<Pair<Int, Weather>,Int>(
-    Pair(0,SUNNY) to R.raw.nl12am,
+val acnlTracks = hashMapOf(
+    Pair(0, SUNNY) to R.raw.nl12am,
     Pair(1, SUNNY) to R.raw.nl2am,
     Pair(2, SUNNY) to R.raw.nl3am,
     Pair(3, SUNNY) to R.raw.nl4am,
