@@ -21,6 +21,17 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
     private var trackNo: Int = -1
     fun getTrackID(): Int = trackNo
 
+    /**
+     * represents the state of the MusicManager, for the purpose of other classes
+     * to use to determine legitimate operations to perform on a MusicManager instance.
+     */
+    enum class State {
+        PLAYING, PAUSED
+    }
+    fun getState(): MusicManager.State {
+        return if (player?.isPlaying == false) State.PLAYING else State.PAUSED
+    }
+
     init {
         play()
         scheduleNext()
