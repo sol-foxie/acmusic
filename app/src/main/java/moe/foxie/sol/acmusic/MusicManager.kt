@@ -22,13 +22,31 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
     fun getTrackID(): Int = trackNo
 
     init {
-        onAlarm()
+        play()
+        scheduleNext()
         ctx.registerReceiver(this,IntentFilter(Intent.ACTION_TIME_CHANGED))
     }
 
     fun changeTrackNo(trackNo: Int) {
         this.trackNo = trackNo
         changeTracks(tracks[Pair(trackNo,SUNNY)] ?: 0)
+    }
+
+    /**
+     * if the current track is paused and the current time/weather hasn't changed,
+     * simply resumes playing the existing media player.
+     * otherwise, it changes the track to the one appropriate for the current time/weather,
+     * but does NOT play the hourly chime.
+     */
+    fun play() {
+        //placeholder implementation that assumes weather is unchanging and always sunny
+        //at time of writing, hourly chime is unimplemented so we'll ignore that for now too
+        if ((player?.isPlaying == false) && trackNo == getHour24()) {
+            player?.start()
+        }
+        else if (trackNo != getHour24()) {
+            changeTrackNo(getHour24())
+        }
     }
     private fun changeTracks(trackRes: Int) {
         player?.discard()
