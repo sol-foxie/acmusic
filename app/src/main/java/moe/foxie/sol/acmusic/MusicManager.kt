@@ -48,6 +48,14 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
             changeTrackNo(getHour24())
         }
     }
+
+    /**
+     * pauses the currently playing track.
+     */
+    fun pause() {
+        player?.pause()
+    }
+
     private fun changeTracks(trackRes: Int) {
         player?.discard()
 
