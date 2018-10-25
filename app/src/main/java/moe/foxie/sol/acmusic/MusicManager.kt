@@ -26,10 +26,24 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
      * to use to determine legitimate operations to perform on a MusicManager instance.
      */
     enum class State {
-        PLAYING, PAUSED
+        PLAYING, PAUSED;
+
+        fun uiPlayPauseString(): Int {
+            return when (this) {
+                PLAYING -> R.string.pause
+                PAUSED -> R.string.play
+            }
+        }
+
+        fun togglePlayPause(manager: MusicManager) {
+            when (this) {
+                PLAYING -> manager.pause()
+                PAUSED -> manager.play()
+            }
+        }
     }
     fun getState(): MusicManager.State {
-        return if (player?.isPlaying == false) State.PLAYING else State.PAUSED
+        return if (player?.isPlaying == true) State.PLAYING else State.PAUSED
     }
 
     init {
