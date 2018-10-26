@@ -1,6 +1,9 @@
 package moe.foxie.sol.acmusic
 
 
+/**
+ * an enum representing various weather conditions as they appear in the Animal Crossing games.
+ */
 enum class Weather {
     SUNNY,RAINY,SNOWY
 }
@@ -8,6 +11,7 @@ val SUNNY = Weather.SUNNY
 val RAINY = Weather.RAINY
 val SNOWY = Weather.SNOWY
 
+//Tracks for Animal Crossing: New Leaf
 val acnlTracks = hashMapOf(
     Pair(0, SUNNY) to R.raw.nl12am,
     Pair(1, SUNNY) to R.raw.nl2am,
@@ -34,3 +38,5 @@ val acnlTracks = hashMapOf(
     Pair(22, SUNNY) to R.raw.nl11pm,
     Pair(23, SUNNY) to R.raw.nl1am
 )
+
+// todo: add global constant for Totaka's Song, for playing when an error occurs

@@ -9,7 +9,14 @@ import android.media.MediaPlayer
 import android.os.SystemClock
 import java.util.*
 
-
+/**
+ * MusicManager plays tracks provided, synced to the hour of day and the weather.
+ * Initialize with a Context (for scheduling alarms) and a Map of resource Ints (e.g. those you'd get from R.raw.*)
+ * Responsibilities include:
+ * * managing a mediaPlayer instance, including playing and pausing and discarding
+ * * scheduling alarms and keeping track of changes in the time and weather
+ * * when the time/weather changes, the track should be changed and start playing iff the MusicManager is not paused
+ */
 class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,Weather>,Int>)
     :BroadcastReceiver(), AlarmManager.OnAlarmListener  {
 
@@ -46,12 +53,20 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
         return if (player?.isPlaying == true) State.PLAYING else State.PAUSED
     }
 
+    /**
+     * inits this class and starts playing audio immediately.
+     */
     init {
         play()
         scheduleNext()
         ctx.registerReceiver(this,IntentFilter(Intent.ACTION_TIME_CHANGED))
     }
 
+    /**
+     * change track according to current hour of the day. valid inputs depend on the Map passed in, but for the purpose
+     * of this application can be assumed to correspond to the hours of the day, with values running from 0-23.
+     * todo: this function should accept Pair<Int,Weather> so it can be used as a key into the Map passed to the constructor
+     */
     fun changeTrackNo(trackNo: Int) {
         this.trackNo = trackNo
         changeTracks(tracks[Pair(trackNo,SUNNY)] ?: 0)
@@ -81,6 +96,14 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
         player?.pause()
     }
 
+    /**
+     * changes the currently playing track.
+     * calling this method will replace the existing MediaPlayer with a new instance,
+     * as well as notify any MusicManager.TrackChangeListeners that the track did change.
+     * the parameter for this function is a resource ID for use with the MediaPlayer(Int) constructor.
+     * the only values passed into this method should be those from the Map passed into the constructor of MusicManager,
+     * and because that is not enforced in code, this method is private
+     */
     private fun changeTracks(trackRes: Int) {
         player?.discard()
 
@@ -91,21 +114,37 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
         listener?.trackDidChange()
     }
 
+    /**
+     * schedules an alarm to fire at the next hour change. current weather should be determined when that alarm fires,
+     * not within this method.
+     */
     private fun scheduleNext() {
         alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,  SystemClock.elapsedRealtime() + msToNextHour(), "acmusic", this, null)
     }
 
+    /**
+     * respond to the manual changing of the system clock.
+     * todo: is ACTION_TIME_CHANGED really only called when the user sets the clock? seems NTP updates may also cause this intent to fire.
+     */
     override fun onReceive(ctx: Context?, intent: Intent?) {
         require(intent!!.action.equals(Intent.ACTION_TIME_CHANGED))
         alarmManager.cancel(this)
         onAlarm()
     }
 
+    /**
+     * perform actions necessary when the hour (or time) changes,
+     * such as changing the track and scheduling the next alarm.
+     */
     override fun onAlarm() {
         changeTrackNo(getHour24())
         scheduleNext()
     }
 
+    /**
+     * an interface to be implemented by objects wanting to be notified when the MusicManager changes tracks.
+     * an implementing object should be assigned to the MusicManager's listener property.
+     */
     interface TrackChangeListener {
         fun trackDidChange()
     }
