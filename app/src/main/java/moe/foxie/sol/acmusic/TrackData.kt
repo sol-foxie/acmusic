@@ -1,15 +1,8 @@
 package moe.foxie.sol.acmusic
 
-
-/**
- * an enum representing various weather conditions as they appear in the Animal Crossing games.
- */
-enum class Weather {
-    SUNNY,RAINY,SNOWY
-}
-val SUNNY = Weather.SUNNY
-val RAINY = Weather.RAINY
-val SNOWY = Weather.SNOWY
+val SUNNY = ACWeather.SUNNY
+val RAINY = ACWeather.RAINY
+val SNOWY = ACWeather.SNOWY
 
 //Tracks for Animal Crossing: New Leaf
 val acnlTracks = hashMapOf(
