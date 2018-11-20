@@ -17,13 +17,15 @@ import java.util.*
  * * scheduling alarms and keeping track of changes in the time and weather
  * * when the time/weather changes, the track should be changed and start playing iff the MusicManager is not paused
  */
-class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,Weather>,Int>)
+class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,ACWeather>,Int>)
     :BroadcastReceiver(), AlarmManager.OnAlarmListener  {
 
     private var player: MediaPlayer? = null
     private val alarmManager = ctx.getSystemService(AlarmManager::class.java)
 
     var listener: TrackChangeListener? = null
+
+    var didChangeBlock: (() -> Unit)? = null
 
     private var trackNo: Int = -1
     fun getTrackID(): Int = trackNo
@@ -87,6 +89,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
         else if (trackNo != getHour24()) {
             changeTrackNo(getHour24())
         }
+        didChangeBlock?.invoke()
     }
 
     /**
@@ -94,6 +97,11 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
      */
     fun pause() {
         player?.pause()
+        didChangeBlock?.invoke()
+    }
+
+    fun playPause() {
+        this.getState().togglePlayPause(this)
     }
 
     /**
@@ -111,7 +119,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,We
         player!!.isLooping = true
         player!!.start()
 
-        listener?.trackDidChange()
+        didChangeBlock?.invoke()
     }
 
     /**

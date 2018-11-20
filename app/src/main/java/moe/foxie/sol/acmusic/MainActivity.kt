@@ -1,44 +1,81 @@
 package moe.foxie.sol.acmusic
 
 import android.app.Activity
-import android.media.MediaPlayer
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Button
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 /**
- * The Activity that executes when this app is launched.
+ * the Activity that executes when this app is launched.
  */
-class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicManager.TrackChangeListener {
+class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicPlayerService.ServiceListener {
 
-    // this is null because initializing it before onCreate passes it an unusable Context value for some reason…
-    private var manager: MusicManager? = null
+    private var service: MusicPlayerService? = null
+        set(value) {
+            value?.serviceListener = this
+            field = value
+        }
+
+    private val connection = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+            require(binder is MusicPlayerService.ServiceBinder)
+            service = binder.service()
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            check(false) //since service is in-process, this will never be called
+        }
+
+    }
+
+    private lateinit var onlineIntent: Intent
 
     /**
-     * entry point for our app. we create an start the MusicManager in here,
-     * as well as configure views and event listeners and all that jazz.
+     * entry point for our app. we start the MusicPlayerService here
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        manager = MusicManager(this, acnlTracks)
         super.onCreate(savedInstanceState)
+
+        onlineIntent = Intent(this, MusicPlayerService::class.java).setAction(MUSIC_SERVICE_ONLINE)
+
+        this.startForegroundService(onlineIntent)
         setContentView(R.layout.activity_main)
 
         jukebox.onItemSelectedListener = this
 
         playPause.setOnClickListener{
-            manager!!.getState().togglePlayPause(manager!!)
-            playPause.setText(manager!!.getState().uiPlayPauseString())
+            service?.manager?.playPause()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        jukebox.setSelection(manager!!.getTrackID())
-        playPause.setText(manager!!.getState().uiPlayPauseString())
+        this.bindService(onlineIntent, connection, Context.BIND_AUTO_CREATE)
     }
 
+    override fun onPause() {
+        super.onPause()
+        this.unbindService(connection)
+    }
+
+
+    override fun update(trackID: Int, state: MusicManager.State) {
+        jukebox.setSelection(trackID)
+        playPause.setText(state.uiPlayPauseString())
+    }
+
+    /**
+     * a Spinner fires a selection when loaded, even if the user didn't interact with it.
+     * it's unfortunate, but we need to suppress this and this kludge seems like the best way.
+     */
+    private var initialSelection = true
     /**
      * plays a track as selected from a Spinner view by the user.
      * assumes the listing of tracks in the Spinner are arranged in chronological order,
@@ -47,21 +84,13 @@ class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicManage
      * todo: decide whether selecting an item in the Spinner while the MusicManager is paused should make it play
      */
     override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, pos: Int, row: Long) {
-        if (row.toInt() != manager!!.getTrackID()) {
-            require(adapterView!!.id == jukebox.id)
-            manager!!.changeTrackNo(row.toInt())
-        }
+        require(adapterView!!.id == jukebox.id)
+        if (!initialSelection) service?.manager?.changeTrackNo(row.toInt())
+        initialSelection = false
     }
 
     //todo: figure out if this even gets called when the view in question is a Spinner
     override fun onNothingSelected(adapterView: AdapterView<*>?) {
-    }
-
-    /**
-     * if the MusicManager changes tracks while the UI is extant, we should react and select that value in the Spinner.
-     */
-    override fun trackDidChange() {
-        jukebox.setSelection(manager!!.getTrackID())
     }
 
 }
