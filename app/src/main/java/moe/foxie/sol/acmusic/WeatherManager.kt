@@ -122,7 +122,7 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         suspend fun fetch(location: LatLong): ACWeather {
             val connection = constructRequest(location).openConnection() as HttpsURLConnection
             try {
-                rawResult = GlobalScope.async { connection.inputStream.use { readStream(it,responseLength()) } }.await()
+                rawResult = GlobalScope.async { connection.inputStream.use { readStream(it,connection.contentLength) } }.await()
                 return parseResponse(rawResult!!)
             } catch (e: IOException) {
                 throw WeatherFetchRemoteAPIFailureException("failure to access $serviceName.",connection.responseCode)
@@ -134,7 +134,6 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
 
         protected abstract fun constructRequest(location: LatLong): URL
 
-        protected abstract fun responseLength(): Int
     }
 }
 
