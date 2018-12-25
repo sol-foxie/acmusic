@@ -145,7 +145,10 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
      * such as changing the track and scheduling the next alarm.
      */
     override fun onAlarm() {
-        changeTrackNo(getHour24())
+        player!!.isLooping = false
+        player!!.setOnCompletionListener {
+            this.changeTrackNo(getHour24())
+        }
         scheduleNext()
     }
 
