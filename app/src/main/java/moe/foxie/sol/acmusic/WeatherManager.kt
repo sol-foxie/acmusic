@@ -62,7 +62,22 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
      * 20% RAINY and 80% SUNNY.
      */
     private fun offlineWeather(): ACWeather {
-        TODO()
+        return when (Calendar.getInstance().get(Calendar.MONTH)) {
+            NOVEMBER, DECEMBER, JANUARY, FEBRUARY -> determineWeather(10,30)
+            else -> determineWeather(20,0)
+        }
+    }
+
+    private fun determineWeather(rainyOdds: Int, snowyOdds: Int): ACWeather {
+        require((rainyOdds + snowyOdds) < 100)
+        require(rainyOdds > 0)
+        require(snowyOdds > 0)
+        val rainyRange = 1..rainyOdds
+        val snowyRange = rainyOdds..rainyOdds+snowyOdds
+        val roll = Random.nextInt(1,100)
+        return if (rainyRange.contains(roll)) RAINY
+        else if (snowyRange.contains(roll)) SNOWY
+        else SUNNY
     }
 
     /**
