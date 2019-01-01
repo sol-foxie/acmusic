@@ -7,6 +7,7 @@ import java.io.*
 import java.lang.Exception
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
+import kotlin.random.Random
 
 /**
  * an enum representing various weather conditions as they appear in the Animal Crossing games.
