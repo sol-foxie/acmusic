@@ -68,17 +68,9 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         }
     }
 
-    private fun determineWeather(rainyOdds: Int, snowyOdds: Int): ACWeather {
-        require((rainyOdds + snowyOdds) < 100)
-        require(rainyOdds > 0)
-        require(snowyOdds > 0)
-        val rainyRange = 1..rainyOdds
-        val snowyRange = rainyOdds..rainyOdds+snowyOdds
-        val roll = Random.nextInt(1,100)
-        return if (rainyRange.contains(roll)) RAINY
-        else if (snowyRange.contains(roll)) SNOWY
-        else SUNNY
-    }
+    private fun determineWeather(rainyOdds: Int, snowyOdds: Int): ACWeather =
+        chooseWithProbability(100, Pair(RAINY,rainyOdds),Pair(SNOWY,snowyOdds),Pair(SUNNY,100 - (rainyOdds + snowyOdds)))
+
 
     /**
      * returns a ACWeather object based on the user's current location. this method may fail if:
@@ -149,7 +141,20 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
 
         protected abstract fun constructRequest(location: LatLong): URL
 
+fun UNREACHABLE(): Nothing = throw IllegalStateException()
+
+fun <T> chooseWithProbability(total: Int, vararg odds: Pair<T,Int>): T {
+    require(total > 0 && odds.all { (_,odd) ->  odd > 0})
+    require(odds.fold(0) { n, (_,odd) -> n + odd } == total)
+
+    val roll = Random.nextInt(total)
+
+    var sum = 0
+    for ((value,odd) in odds) {
+        sum += odd
+        if (roll < sum) return value
     }
+    UNREACHABLE()
 }
 
 fun Context.getConnectivityManager(): ConnectivityManager {
