@@ -132,30 +132,43 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
 
         abstract val serviceName: String
 
-        /**
-         * the raw string value of the api request.
-         * is populated each time fetch is called.
-         */
-        var rawResult: String? = null
+        var done = false
+            private set
+
+        sealed class Result {
+            data class Success(val rawResult: String, val parsedResult: ACWeather) : Result()
+            data class Failure(val error: IOException) : Result()
+        }
+
+        var result: Result? = null
+            private set
 
         /**
          * attempts to fetch the weather from the api
          * @throws WeatherFetchRemoteAPIFailureException
          */
-        suspend fun fetch(location: LatLong): ACWeather {
+        fun fetch(location: LatLong): Result {
+            done = false
             val connection = constructRequest(location).openConnection() as HttpsURLConnection
             try {
-                rawResult = GlobalScope.async { connection.inputStream.use { readStream(it,connection.contentLength) } }.await()
-                return parseResponse(rawResult!!)
-            } catch (e: IOException) {
-                throw WeatherFetchRemoteAPIFailureException("failure to access $serviceName.",connection.responseCode)
+                val rawResult = connection.inputStream.use { readStream(it, connection.contentLength) }
+                val success = Result.Success(rawResult, parseResponse(rawResult))
+                result = success
+                return success
+            } catch(e: IOException) {
+                val failure = Result.Failure(e)
+                result = failure
+                return failure
             } finally {
                 connection.disconnect()
             }
+            done = true
         }
         protected abstract fun parseResponse(result: String): ACWeather
 
         protected abstract fun constructRequest(location: LatLong): URL
+    }
+}
 
 fun UNREACHABLE(): Nothing = throw IllegalStateException()
 
