@@ -34,17 +34,17 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         ONLINE,OFFLINE
     }
 
-    private abstract class WeatherFetchFailureException(message: String): Exception(message) {}
+    private abstract class WeatherFetchFailureException(message: String): Exception(message)
     /** location access is disallowed by system privacy settings. */
-    private class WeatherFetchNoLocationAccessException(): WeatherFetchFailureException("access to the user's location was denied.") {}
+    private class WeatherFetchNoLocationAccessException(): WeatherFetchFailureException("access to the user's location was denied.")
     /** device was unable to provide location */
     private class WeatherFetchNoLocationException(): WeatherFetchFailureException("access to the user's location was denied.")
     /** device is unable to access the internet. */
-    private class WeatherFetchNoNetworkException(): WeatherFetchFailureException("the device is not connected to the network.") {}
+    private class WeatherFetchNoNetworkException(): WeatherFetchFailureException("the device is not connected to the network.")
     /** the app has been put into offline mode, this is a user preference. */
-    private class WeatherFetchOfflineModeException(): WeatherFetchFailureException("attempted to fetch from network while in offline-only mode.") {}
+    private class WeatherFetchOfflineModeException(): WeatherFetchFailureException("attempted to fetch from network while in offline-only mode.")
     /** the api was successfully connected to, but returned an error. */
-    private class WeatherFetchRemoteAPIFailureException(message: String, errorCode: Int): WeatherFetchFailureException(message) {}
+    private class WeatherFetchRemoteAPIFailureException(message: String, errorCode: Int): WeatherFetchFailureException(message)
 
     data class Forecast(val connection: Connectivity, val weather: ACWeather)
 
