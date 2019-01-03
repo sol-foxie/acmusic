@@ -106,11 +106,16 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         require(apis.isNotEmpty())
         if (!context.getConnectivityManager().isConnected()) throw WeatherFetchNoNetworkException()
 
-        return try {
-            apis.component1().fetch(location)
-        } catch (e: WeatherFetchFailureException) {
-            val rest = apis.drop(1)
-            if (rest.isNotEmpty()) tryApis(rest,location) else throw e
+        val api = apis.component1()
+
+        api.fetch(location)
+        val theResult = api.result!!
+
+        val rest = apis.drop(1)
+
+       return when (theResult) {
+            is RemoteAPI.Result.Success -> theResult.parsedResult
+            is RemoteAPI.Result.Failure -> if (apis.isNotEmpty()) tryApis(rest,location) else throw theResult.error
         }
     }
 
