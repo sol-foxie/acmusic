@@ -27,6 +27,8 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
 
     var didChangeBlock: (() -> Unit)? = null
 
+    var updateBlock: ((MusicManager) -> Unit)? = null
+
     private var trackNo: Int = -1
     fun getTrackID(): Int = trackNo
 
@@ -145,9 +147,13 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
      * such as changing the track and scheduling the next alarm.
      */
     override fun onAlarm() {
-        player!!.isLooping = false
-        player!!.setOnCompletionListener {
-            this.changeTrackNo(getHour24())
+        if (updateBlock == null) {
+            player!!.isLooping = false
+            player!!.setOnCompletionListener {
+                this.changeTrackNo(getHour24())
+            }
+        } else {
+            updateBlock!!(this)
         }
         scheduleNext()
     }

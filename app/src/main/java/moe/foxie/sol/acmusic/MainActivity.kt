@@ -69,8 +69,10 @@ class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicPlayer
 
 
     override fun update(trackID: Int, state: MusicManager.State) {
-        jukebox.setSelection(trackID)
-        playPause.setText(state.uiPlayPauseString())
+        this.runOnUiThread {
+            jukebox.setSelection(trackID)
+            playPause.setText(state.uiPlayPauseString())
+        }
     }
 
     /**

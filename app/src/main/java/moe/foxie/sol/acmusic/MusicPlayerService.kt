@@ -14,6 +14,8 @@ import android.os.IBinder
  */
 class MusicPlayerService: Service() {
 
+    lateinit var fetcherThread: FetcherThread
+        private set
     lateinit var manager: MusicManager
         private set
     lateinit var weather: WeatherManager
@@ -61,8 +63,13 @@ class MusicPlayerService: Service() {
         require(intent != null)
         require(intent.action == MUSIC_SERVICE_ONLINE || intent.action == MUSIC_SERVICE_OFFLINE)
 
-        //weather = WeatherManager(intent.action == MUSIC_SERVICE_ONLINE, this, getAPIs())
+        weather = WeatherManager(intent.action == MUSIC_SERVICE_ONLINE, this, getAPIs(resources))
+
         manager = MusicManager(this, acnlTracks)
+
+        fetcherThread = FetcherThread(manager,weather)
+        fetcherThread.start()
+        manager.updateBlock = { fetcherThread.shouldUpdate() }
         manager.didChangeBlock = {
             serviceListener?.update(manager.getTrackID(),manager.getState())
         }
