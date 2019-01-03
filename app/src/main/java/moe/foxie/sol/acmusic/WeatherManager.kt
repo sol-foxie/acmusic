@@ -205,7 +205,7 @@ fun ConnectivityManager.isConnected(): Boolean {
  * copied on November 4th, 2018 from https://developer.android.com/training/basics/network-ops/connecting
  */
 @Throws(IOException::class, UnsupportedEncodingException::class)
-fun readStream(stream: InputStream, maxReadSize: Int): String? {
+fun readStream(stream: InputStream, maxReadSize: Int): String {
     val reader: Reader? = InputStreamReader(stream, "UTF-8")
     val rawBuffer = CharArray(maxReadSize)
     val buffer = StringBuffer()
