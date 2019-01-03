@@ -85,6 +85,6 @@ const val MUSIC_SERVICE_OFFLINE = DOMAIN_PREFIX + "ACTION_MUSIC_SERVICE_OFFLINE"
 
 const val SERVICE_NOTIFICATION_CHANNEL = DOMAIN_PREFIX + "SERVICE_NOTIFICATION_CHANNEL"
 
-fun getAPIs(): List<WeatherManager.RemoteAPI> {
-    TODO("not implemented")
+fun getAPIs(res: Resources): List<WeatherManager.RemoteAPI> {
+    return listOf(DarkSkyApi(res.getString(R.string.darkSkyKey)))
 }
