@@ -47,6 +47,8 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
     internal class WeatherFetchOfflineModeException(): WeatherFetchFailureException("attempted to fetch from network while in offline-only mode.")
     /** the api was successfully connected to, but returned an error. */
     internal class WeatherFetchRemoteAPIFailureException(message: String = "the api returned an error!", errorCode: Int): WeatherFetchFailureException(message)
+    /** the api returned a response, but it could not be parsed */
+    internal class WeatherFetchParsingException(message: String): WeatherFetchFailureException(message)
 
     data class Forecast(val connection: Connectivity, val weather: ACWeather)
 
@@ -171,6 +173,10 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
             }
             done = true
         }
+
+        /**
+         * @throws WeatherFetchParsingException
+         */
         protected abstract fun parseResponse(result: String): ACWeather
 
         protected abstract fun constructRequest(location: LatLong): URL
