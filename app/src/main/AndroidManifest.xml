@@ -3,6 +3,8 @@
           package="moe.foxie.sol.acmusic">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application
             android:allowBackup="true"

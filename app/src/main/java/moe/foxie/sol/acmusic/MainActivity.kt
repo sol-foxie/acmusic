@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.AdapterView
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+import android.Manifest
 
 /**
  * the Activity that executes when this app is launched.
@@ -42,6 +43,7 @@ class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicPlayer
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),0)
 
         onlineIntent = Intent(this, MusicPlayerService::class.java).setAction(MUSIC_SERVICE_ONLINE)
 

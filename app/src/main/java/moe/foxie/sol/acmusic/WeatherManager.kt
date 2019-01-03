@@ -1,8 +1,12 @@
 package moe.foxie.sol.acmusic
 
 import android.content.Context
+import android.location.Location
 import android.net.ConnectivityManager
 import kotlinx.coroutines.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Tasks
 import java.io.*
 import java.lang.Exception
 import java.net.URL
@@ -25,6 +29,8 @@ typealias LatLong = Pair<Double,Double>
  */
 class WeatherManager(val onlineMode: Boolean, private val context: Context, private val apis: List<RemoteAPI>) {
 
+    private val locationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+
     enum class Connectivity {
         ONLINE,OFFLINE
     }
@@ -32,6 +38,8 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
     private abstract class WeatherFetchFailureException(message: String): Exception(message) {}
     /** location access is disallowed by system privacy settings. */
     private class WeatherFetchNoLocationAccessException(): WeatherFetchFailureException("access to the user's location was denied.") {}
+    /** device was unable to provide location */
+    private class WeatherFetchNoLocationException(): WeatherFetchFailureException("access to the user's location was denied.")
     /** device is unable to access the internet. */
     private class WeatherFetchNoNetworkException(): WeatherFetchFailureException("the device is not connected to the network.") {}
     /** the app has been put into offline mode, this is a user preference. */
@@ -108,9 +116,16 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
      * gets the current location
      * @returns the user's latitude and longitude position
      * @throws WeatherFetchNoLocationAccessException
+     * @throws WeatherFetchNoLocationException
      */
     private fun getCurrentLocation(): LatLong {
-        TODO()
+        try {
+            val location = Tasks.await(locationProvider.lastLocation)
+            if (location != null) return LatLong(location.latitude, location.longitude)
+            throw WeatherFetchNoLocationException()
+        } catch (e: SecurityException) {
+            throw WeatherFetchNoLocationAccessException()
+        }
     }
 
     abstract class RemoteAPI(private val key: String) {
