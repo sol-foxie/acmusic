@@ -2,7 +2,6 @@ package moe.foxie.sol.acmusic
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
-import org.json.JSONObject
 import java.lang.StringBuilder
 import java.net.URL
 
@@ -14,8 +13,9 @@ class DarkSkyApi(private val key: String): WeatherManager.RemoteAPI(key) {
         get() = "Dark Sky"
 
     override fun parseResponse(result: String): ACWeather {
-        val obj = parser.parse(StringBuilder(result)) as JSONObject
-        return when (obj.getJSONObject("hourly").getString("icon")) {
+        val obj = parser.parse(StringBuilder(result)) as JsonObject
+        val icon = obj.obj("hourly")?.string("icon")
+        return when (icon) {
             "rain" -> ACWeather.RAINY
             "snow","sleet" -> ACWeather.SNOWY
             else -> ACWeather.SUNNY
