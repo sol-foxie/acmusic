@@ -36,17 +36,17 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         ONLINE,OFFLINE
     }
 
-    private abstract class WeatherFetchFailureException(message: String): Exception(message)
+    internal abstract class WeatherFetchFailureException(message: String): Exception(message)
     /** location access is disallowed by system privacy settings. */
-    private class WeatherFetchNoLocationAccessException(): WeatherFetchFailureException("access to the user's location was denied.")
+    internal class WeatherFetchNoLocationAccessException(): WeatherFetchFailureException("access to the user's location was denied.")
     /** device was unable to provide location */
-    private class WeatherFetchNoLocationException(): WeatherFetchFailureException("access to the user's location was denied.")
+    internal class WeatherFetchNoLocationException(): WeatherFetchFailureException("access to the user's location was denied.")
     /** device is unable to access the internet. */
-    private class WeatherFetchNoNetworkException(): WeatherFetchFailureException("the device is not connected to the network.")
+    internal class WeatherFetchNoNetworkException(): WeatherFetchFailureException("the device is not connected to the network.")
     /** the app has been put into offline mode, this is a user preference. */
-    private class WeatherFetchOfflineModeException(): WeatherFetchFailureException("attempted to fetch from network while in offline-only mode.")
+    internal class WeatherFetchOfflineModeException(): WeatherFetchFailureException("attempted to fetch from network while in offline-only mode.")
     /** the api was successfully connected to, but returned an error. */
-    private class WeatherFetchRemoteAPIFailureException(message: String, errorCode: Int): WeatherFetchFailureException(message)
+    internal class WeatherFetchRemoteAPIFailureException(message: String = "the api returned an error!", errorCode: Int): WeatherFetchFailureException(message)
 
     data class Forecast(val connection: Connectivity, val weather: ACWeather)
 
@@ -142,19 +142,19 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         var done = false
             private set
 
-        sealed class Result {
+        internal sealed class Result {
             data class Success(val rawResult: String, val parsedResult: ACWeather) : Result()
-            data class Failure(val error: IOException) : Result()
+            data class Failure(val error: WeatherFetchRemoteAPIFailureException) : Result()
         }
 
-        var result: Result? = null
+        internal var result: Result? = null
             private set
 
         /**
          * attempts to fetch the weather from the api
          * @throws WeatherFetchRemoteAPIFailureException
          */
-        fun fetch(location: LatLong): Result {
+        internal fun fetch(location: LatLong): Result {
             done = false
             val connection = constructRequest(location).openConnection() as HttpsURLConnection
             try {
