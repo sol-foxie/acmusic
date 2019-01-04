@@ -125,13 +125,15 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
     }
 
     /**
-     * gets the current location
+     * gets the current location.
+     * this method blocks and should only be called on a background thread.
      * @returns the user's latitude and longitude position
      * @throws WeatherFetchNoLocationAccessException
      * @throws WeatherFetchNoLocationException
      */
     private fun getCurrentLocation(): LatLong {
         try {
+            //todo: check if we have permissions instead of assuming we have them.
             val location = Tasks.await(locationProvider.lastLocation)
             if (location != null) return LatLong(location.latitude, location.longitude)
             throw WeatherFetchNoLocationException()
