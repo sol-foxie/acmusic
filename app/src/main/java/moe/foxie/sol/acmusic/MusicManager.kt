@@ -28,9 +28,13 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
     var didChangeBlock: (() -> Unit)? = null
 
     var updateBlock: ((MusicManager) -> Unit)? = null
+        set(value) {
+            field = value
+            value?.invoke(this)
+        }
 
-    private var trackNo: Int = -1
-    fun getTrackID(): Int = trackNo
+    private var trackID: Pair<Int,ACWeather>? = null
+    fun getTrackID(): Pair<Int,ACWeather>? = trackID
 
     /**
      * represents the state of the MusicManager, for the purpose of other classes
@@ -69,11 +73,10 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
     /**
      * change track according to current hour of the day. valid inputs depend on the Map passed in, but for the purpose
      * of this application can be assumed to correspond to the hours of the day, with values running from 0-23.
-     * todo: this function should accept Pair<Int,Weather> so it can be used as a key into the Map passed to the constructor
      */
-    fun changeTrackNo(trackNo: Int) {
-        this.trackNo = trackNo
-        changeTracks(tracks[Pair(trackNo,SUNNY)] ?: 0)
+    fun changeTrackID(key: Pair<Int,ACWeather>) {
+        this.trackID = key
+        changeTracks(tracks[key] ?: 0)
     }
 
     /**
@@ -83,14 +86,9 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
      * but does NOT play the hourly chime.
      */
     fun play() {
-        //placeholder implementation that assumes weather is unchanging and always sunny
-        //at time of writing, hourly chime is unimplemented so we'll ignore that for now too
-        if ((player?.isPlaying == false) && trackNo == getHour24()) {
-            player?.start()
-        }
-        else if (trackNo != getHour24()) {
-            changeTrackNo(getHour24())
-        }
+        //todo: for the love of god, check this for state/synchronization bugs
+        if (player?.isPlaying == false) player?.start()
+        updateBlock?.invoke(this)
         didChangeBlock?.invoke()
     }
 
@@ -147,14 +145,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
      * such as changing the track and scheduling the next alarm.
      */
     override fun onAlarm() {
-        if (updateBlock == null) {
-            player!!.isLooping = false
-            player!!.setOnCompletionListener {
-                this.changeTrackNo(getHour24())
-            }
-        } else {
-            updateBlock!!(this)
-        }
+        updateBlock?.invoke(this)
         scheduleNext()
     }
 

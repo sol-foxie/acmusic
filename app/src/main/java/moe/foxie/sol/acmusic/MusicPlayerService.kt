@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.os.Binder
 import android.os.IBinder
+import javax.net.ssl.ManagerFactoryParameters
 
 /**
  * Service for playing background music.
@@ -22,7 +23,7 @@ class MusicPlayerService: Service() {
     var serviceListener: MusicPlayerService.ServiceListener? = null
     set(value) {
         field = value
-        value?.update(manager.getTrackID(),manager.getState())
+        value?.update(manager.getTrackID()?.first ?: -1,manager.getState())
     }
 
     interface ServiceListener {
@@ -68,9 +69,6 @@ class MusicPlayerService: Service() {
         fetcherThread = FetcherThread(manager,weather)
         fetcherThread.start()
         manager.updateBlock = { fetcherThread.shouldUpdate() }
-        manager.didChangeBlock = {
-            serviceListener?.update(manager.getTrackID(),manager.getState())
-        }
 
         return this.ServiceBinder()
     }

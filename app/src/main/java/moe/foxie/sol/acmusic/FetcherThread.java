@@ -1,5 +1,7 @@
 package moe.foxie.sol.acmusic;
 
+import kotlin.Pair;
+
 import java.lang.Thread;
 
 import static moe.foxie.sol.acmusic.MusicManagerKt.getHour24;
@@ -24,7 +26,7 @@ public class FetcherThread extends Thread {
                 synchronized (this) { while (!shouldUpdate) wait(); }
                 shouldUpdate = false;
                 WeatherManager.Forecast f = weather.currentWeather();
-                music.changeTrackNo(getHour24());
+                music.changeTrackID(new Pair<>(getHour24(),f.getWeather()));
                 if (isInterrupted()) throw new InterruptedException();
             }
         } catch (InterruptedException ex) { return; }

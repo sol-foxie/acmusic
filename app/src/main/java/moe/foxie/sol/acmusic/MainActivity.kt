@@ -89,7 +89,7 @@ class MainActivity : Activity(), AdapterView.OnItemSelectedListener, MusicPlayer
      */
     override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, pos: Int, row: Long) {
         require(adapterView!!.id == jukebox.id)
-        if (!initialSelection) service?.manager?.changeTrackNo(row.toInt())
+        //if (!initialSelection) service?.manager?.changeTrackID(row.toInt())
         initialSelection = false
     }
 
