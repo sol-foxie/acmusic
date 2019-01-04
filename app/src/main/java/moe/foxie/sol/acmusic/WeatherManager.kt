@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.Tasks
 import java.io.*
 import java.lang.Exception
 import java.lang.IllegalStateException
+import java.lang.StringBuilder
 import java.net.URL
 import java.util.*
 import java.util.Calendar.*
@@ -111,6 +112,8 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         val api = apis.component1()
 
         api.fetch(location)
+
+        check(api.done)
         val theResult = api.result!!
 
         val rest = apis.drop(1)
@@ -155,23 +158,35 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         /**
          * attempts to fetch the weather from the api
          * @throws WeatherFetchRemoteAPIFailureException
+         * @throws WeatherFetchParsingException
+         * @throws WeatherFetchNoLocationAccessException
+         * @throws WeatherFetchNoLocationException
          */
         internal fun fetch(location: LatLong): Result {
             done = false
             val connection = constructRequest(location).openConnection() as HttpsURLConnection
             try {
-                val rawResult = connection.inputStream.use { readStream(it, connection.contentLength) }
+                if ((connection.responseCode !in 200..299)) throw WeatherFetchRemoteAPIFailureException(errorCode = connection.responseCode)
+                val rawResult = connection.inputStream.use {
+                    val s = StringBuilder()
+                    do {
+                        val i = it.read()
+                        s.append(i.toChar())
+                    } while (i != -1)
+                    s.toString()
+                }
                 val success = Result.Success(rawResult, parseResponse(rawResult))
                 result = success
                 return success
-            } catch(e: IOException) {
+            } catch(e: WeatherFetchRemoteAPIFailureException) {
                 val failure = Result.Failure(e)
                 result = failure
-                return failure
+                throw e
             } finally {
                 connection.disconnect()
+                done = true
             }
-            done = true
+
         }
 
         /**
