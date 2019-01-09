@@ -27,7 +27,7 @@ class MusicPlayerService: Service() {
     }
 
     interface ServiceListener {
-        fun update(trackID: Int, state: MusicManager.State)
+        fun update(trackID: Pair<ACWeather,Int>, state: MusicManager.State)
     }
 
     inner class ServiceBinder: Binder() {
