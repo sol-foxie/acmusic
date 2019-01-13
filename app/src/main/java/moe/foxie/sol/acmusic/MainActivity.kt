@@ -64,7 +64,7 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
     }
 
 
-    override fun update(trackID: Pair<ACWeather,Int>, state: MusicManager.State) {
+    override fun update(trackID: Pair<Int,ACWeather>?, state: MusicManager.State) {
         this.runOnUiThread {
             playPause.setText(state.uiPlayPauseString())
         }

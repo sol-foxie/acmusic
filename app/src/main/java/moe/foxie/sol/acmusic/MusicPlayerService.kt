@@ -23,11 +23,11 @@ class MusicPlayerService: Service() {
     var serviceListener: MusicPlayerService.ServiceListener? = null
     set(value) {
         field = value
-        value?.update(manager.getTrackID()?.first ?: -1,manager.getState())
+        value?.update(manager.getTrackID(),manager.getState())
     }
 
     interface ServiceListener {
-        fun update(trackID: Pair<ACWeather,Int>, state: MusicManager.State)
+        fun update(trackID: Pair<Int,ACWeather>?, state: MusicManager.State)
     }
 
     inner class ServiceBinder: Binder() {
