@@ -13,6 +13,7 @@ import java.lang.StringBuilder
 import java.net.URL
 import java.util.*
 import java.util.Calendar.*
+import java.util.concurrent.ExecutionException
 import javax.net.ssl.HttpsURLConnection
 import kotlin.random.Random
 
@@ -140,8 +141,8 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
             val location = Tasks.await(locationProvider.lastLocation)
             if (location != null) return LatLong(location.latitude, location.longitude)
             throw WeatherFetchNoLocationException()
-        } catch (e: Throwable) {
-            wolfFence(e.toString())
+        } catch (e: ExecutionException) {
+            check(e.cause is SecurityException)
             throw WeatherFetchNoLocationAccessException()
         }
     }
