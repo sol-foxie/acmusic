@@ -224,7 +224,7 @@ fun Context.getConnectivityManager(): ConnectivityManager {
     return this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 }
 fun ConnectivityManager.isConnected(): Boolean {
-    return this.activeNetworkInfo.isConnectedOrConnecting
+    return (activeNetworkInfo != null) && activeNetworkInfo.isConnectedOrConnecting
 }
 
 /**
