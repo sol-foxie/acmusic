@@ -36,6 +36,9 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
     private var trackID: Pair<Int,ACWeather>? = null
     fun getTrackID(): Pair<Int,ACWeather>? = trackID
 
+    var currentlyPlaying: Pair<Int,WeatherManager.Forecast>? = null
+        private set
+
     /**
      * represents the state of the MusicManager, for the purpose of other classes
      * to use to determine legitimate operations to perform on a MusicManager instance.
@@ -71,12 +74,24 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
     }
 
     /**
-     * change track according to current hour of the day. valid inputs depend on the Map passed in, but for the purpose
-     * of this application can be assumed to correspond to the hours of the day, with values running from 0-23.
+     * change track according to current hour of the day.
      */
-    fun changeTrackID(key: Pair<Int,ACWeather>) {
+    fun changeTrackID(forecast: WeatherManager.Forecast) {
+        val hour = getHour24()
+        val key = Pair(hour,forecast.weather)
         this.trackID = key
-        changeTracks(tracks[key] ?: 0)
+
+        val previousTrack = this.currentlyPlaying
+        this.currentlyPlaying = Pair(hour,forecast)
+
+        if (previousTrack != null) {
+            if (!(previousTrack.first == key.first)) {
+                changeTracks(tracks[key] ?: 0)
+            }
+        } else {
+            changeTracks(tracks[key] ?: 0)
+        }
+
     }
 
     /**
@@ -145,7 +160,9 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
      * such as changing the track and scheduling the next alarm.
      */
     override fun onAlarm() {
-        updateBlock?.invoke(this)
+        if (this.getState() == MusicManager.State.PLAYING) {
+            updateBlock?.invoke(this)
+        }
         scheduleNext()
     }
 

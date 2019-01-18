@@ -34,28 +34,30 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
 
     }
 
-    private lateinit var onlineIntent: Intent
+    private lateinit var serviceIntent: Intent
 
     /**
      * entry point for our app. we start the MusicPlayerService here
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),0)
+        this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION),0)
 
-        onlineIntent = Intent(this, MusicPlayerService::class.java).setAction(MUSIC_SERVICE_ONLINE)
+        serviceIntent = Intent(this, MusicPlayerService::class.java).setAction(MUSIC_SERVICE)
 
-        this.startForegroundService(onlineIntent)
         setContentView(R.layout.activity_main)
 
         playPause.setOnClickListener{
-            service?.manager?.playPause()
+            val playPauseIntent = Intent(this,MusicPlayerService::class.java)
+            playPauseIntent.action = MUSIC_SERVICE_PLAY_PAUSE
+            startService(playPauseIntent)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        this.bindService(onlineIntent, connection, Context.BIND_AUTO_CREATE)
+        if (service == null) this.startForegroundService(serviceIntent)
+        this.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onPause() {
@@ -64,9 +66,16 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
     }
 
 
-    override fun update(trackID: Pair<Int,ACWeather>?, state: MusicManager.State) {
+    override fun update(track: Pair<Int,WeatherManager.Forecast>, state: MusicManager.State) {
         this.runOnUiThread {
+            val time = track.first
+            val forecast = track.second
+            display.setText("$time ${forecast.weather.name} ${if (forecast.connection is WeatherManager.Connectivity.ONLINE) "ONLINE ${forecast.connection.location}" else "OFFLINE"}")
             playPause.setText(state.uiPlayPauseString())
         }
+    }
+
+    override fun serviceExited() {
+        service = null
     }
 }

@@ -3,4 +3,6 @@
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="error">ERROR</string>
+    <string name="foreground_notification_playing">Currently playing</string>
+    <string name="foreground_notification_paused">Currently paused</string>
 </resources>

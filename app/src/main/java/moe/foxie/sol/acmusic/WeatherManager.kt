@@ -2,6 +2,7 @@ package moe.foxie.sol.acmusic
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
@@ -34,7 +35,7 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
     private val locationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
     sealed class Connectivity {
-        class ONLINE: Connectivity()
+        class ONLINE(val location: LatLong): Connectivity()
         class OFFLINE(val error: WeatherFetchFailureException): Connectivity()
     }
 
@@ -62,7 +63,8 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
      */
     fun currentWeather(): Forecast {
         return try {
-            Forecast(Connectivity.ONLINE(), onlineWeather()) //network request that can throw
+            val location = getCurrentLocation()
+            Forecast(Connectivity.ONLINE(location), onlineWeather(location)) //network request that can throw
         } catch (e: WeatherFetchFailureException) {
             Forecast(Connectivity.OFFLINE(e), offlineWeather())
         }
@@ -93,9 +95,9 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
      * callers of this function are encouraged to catch the exception and call offlineWeather() in that event.
      * @throws WeatherFetchFailureException
      */
-    private fun onlineWeather(): ACWeather {
+    private fun onlineWeather(location: LatLong): ACWeather {
         if (!onlineMode) throw WeatherFetchOfflineModeException()
-        return tryApis(this.apis,getCurrentLocation())
+        return tryApis(this.apis,location)
 
     }
 
@@ -138,7 +140,8 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
             val location = Tasks.await(locationProvider.lastLocation)
             if (location != null) return LatLong(location.latitude, location.longitude)
             throw WeatherFetchNoLocationException()
-        } catch (e: SecurityException) {
+        } catch (e: Throwable) {
+            wolfFence(e.toString())
             throw WeatherFetchNoLocationAccessException()
         }
     }
