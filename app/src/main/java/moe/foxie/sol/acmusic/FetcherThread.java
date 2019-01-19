@@ -1,18 +1,8 @@
 package moe.foxie.sol.acmusic;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
-
 import java.lang.Thread;
 
-import static moe.foxie.sol.acmusic.GlobalKt.wolfFence;
+import static moe.foxie.sol.acmusic.MusicManagerKt.getHour24;
 
 public class FetcherThread extends Thread {
     private MusicManager music;
@@ -30,14 +20,17 @@ public class FetcherThread extends Thread {
         super.run();
         try {
             while (true) {
-                synchronized (this) {
-                    while (!shouldUpdate) wait();
-                    shouldUpdate = false;
-                    music.changeTrackID(weather.currentWeather());
-                    if (isInterrupted()) throw new InterruptedException();
-                }
+                synchronized (this) {while (!shouldUpdate) wait(); }
+                shouldUpdate = false;
+
+                TrackInfo currentTrack = music.getCurrentlyPlaying();
+                final int nextHour = getHour24();
+                if (currentTrack != null && currentTrack.getHour() == nextHour) continue;
+                music.changeTrackID(new TrackInfo(nextHour, weather.currentWeather()));
+
+                if (isInterrupted()) throw new InterruptedException();
             }
-        } catch (InterruptedException ex) { return; }
+        } catch (InterruptedException e) { return; }
     }
 
     public synchronized void shouldUpdate() {

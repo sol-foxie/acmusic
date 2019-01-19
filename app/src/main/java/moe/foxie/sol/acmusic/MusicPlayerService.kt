@@ -4,7 +4,6 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.media.session.MediaSession
 import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
@@ -26,11 +25,12 @@ class MusicPlayerService: Service() {
     var serviceListener: MusicPlayerService.ServiceListener? = null
     set(value) {
         field = value
-        if (manager.currentlyPlaying != null) value?.update(manager.currentlyPlaying!!,manager.getState())
+        val currentTrack = manager.currentlyPlaying
+        if (currentTrack != null) value?.update(currentTrack,manager.getState())
     }
 
     interface ServiceListener {
-        fun update(track: Pair<Int,WeatherManager.Forecast>, state: MusicManager.State)
+        fun update(track: TrackInfo, state: MusicManager.State)
         fun serviceExited()
     }
 
@@ -40,27 +40,34 @@ class MusicPlayerService: Service() {
         var listener: ServiceListener? = null
     }
 
-    var serviceIsActive = false
-        private set
+    private var serviceIsActive = false
 
-    private lateinit var session: MediaSession
-    override fun onCreate() {
-        super.onCreate()
-        session = MediaSession(this,"test")
-        session.isActive = true
-    }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         when(intent?.action) {
-            MUSIC_SERVICE -> startup()
+            MUSIC_SERVICE -> if (!serviceIsActive) startup()
             MUSIC_SERVICE_PLAY_PAUSE -> playPause()
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
 
     private fun startup() {
         serviceIsActive = true
-
         val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+
+        weather = WeatherManager(true, this, getAPIs(resources))
+
+        manager = MusicManager(this, acnlTracks)
+
+        fetcherThread = FetcherThread(manager,weather)
+        fetcherThread.start()
+        manager.updateBlock = { fetcherThread.shouldUpdate() }
+        manager.didChangeBlock = {
+            serviceListener?.update(manager.currentlyPlaying!!, manager.getState())
+            notificationManager.notify(foregroundServiceNotificationId,this.makeForegroundServiceNotification(manager.getState() == MusicManager.State.PLAYING))
+        }
+
         val channel = NotificationChannel(
             SERVICE_NOTIFICATION_CHANNEL,
             getString(R.string.app_name),
@@ -74,11 +81,17 @@ class MusicPlayerService: Service() {
     }
 
     private fun makeForegroundServiceNotification(isPlaying: Boolean): Notification {
-        val str = if (isPlaying) getString(R.string.foreground_notification_playing) else getString(R.string.foreground_notification_paused)
+        val message = if (isPlaying) "Currently playing: ${trackDisplayName(manager.currentlyPlaying?.trackID)}" else "Currently paused."
+        val button = if (isPlaying) "pause" else "play"
+        val playPauseIntent = Intent(this,MusicPlayerService::class.java).setAction(MUSIC_SERVICE_PLAY_PAUSE)
+        val pPlayPauseIntent = PendingIntent.getService(this,0,playPauseIntent,PendingIntent.FLAG_UPDATE_CURRENT)
+        val playPauseAction = Notification.Action.Builder(R.drawable.play,button,pPlayPauseIntent).build()
+
         return Notification.Builder(this, SERVICE_NOTIFICATION_CHANNEL)
-            .setContentTitle(str)
+            .setContentTitle(message)
             .setSmallIcon(R.drawable.acleaf)
             .setOnlyAlertOnce(true)
+            .addAction(playPauseAction)
             .build()
     }
 
@@ -88,22 +101,28 @@ class MusicPlayerService: Service() {
         serviceListener?.serviceExited()
     }
 
+    private var isBound = false
+
     override fun onBind(intent: Intent?): IBinder {
         check(serviceIsActive)
         require(intent?.action == MUSIC_SERVICE)
-
-        weather = WeatherManager(true, this, getAPIs(resources))
-
-        manager = MusicManager(this, acnlTracks)
-
-        fetcherThread = FetcherThread(manager,weather)
-        fetcherThread.start()
-        manager.updateBlock = { fetcherThread.shouldUpdate() }
-        manager.didChangeBlock = { serviceListener?.update(manager.currentlyPlaying!!, manager.getState())}
-
+        isBound = true
         return this.ServiceBinder()
     }
 
+    override fun onUnbind(intent: Intent?): Boolean {
+        super.onUnbind(intent)
+        isBound = false
+        if (manager.getState() == MusicManager.State.PAUSED)
+            handler.postDelayed(serviceIdleKill,1000*60)
+        return true
+    }
+
+    override fun onRebind(intent: Intent?) {
+        super.onRebind(intent)
+        isBound = true
+        handler.removeCallbacks(serviceIdleKill)
+    }
     fun playPause() {
         check(serviceIsActive)
         val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -115,7 +134,8 @@ class MusicPlayerService: Service() {
 
         if (newState == MusicManager.State.PAUSED) {
             notificationManager.notify(foregroundServiceNotificationId,makeForegroundServiceNotification(false))
-            handler.postDelayed(serviceIdleKill,1000*60)
+            if (!isBound)
+                handler.postDelayed(serviceIdleKill,1000*60)
         } else if (newState == MusicManager.State.PLAYING) {
             notificationManager.notify(foregroundServiceNotificationId,makeForegroundServiceNotification(true))
             handler.removeCallbacks(serviceIdleKill)

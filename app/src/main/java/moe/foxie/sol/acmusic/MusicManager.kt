@@ -17,7 +17,7 @@ import java.util.*
  * * scheduling alarms and keeping track of changes in the time and weather
  * * when the time/weather changes, the track should be changed and start playing iff the MusicManager is not paused
  */
-class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,ACWeather>,Int>)
+class MusicManager(private val ctx: Context, private val tracks: Map<TrackID,Int>)
     :BroadcastReceiver(), AlarmManager.OnAlarmListener  {
 
     private var player: MediaPlayer? = null
@@ -33,10 +33,7 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
             value?.invoke(this)
         }
 
-    private var trackID: Pair<Int,ACWeather>? = null
-    fun getTrackID(): Pair<Int,ACWeather>? = trackID
-
-    var currentlyPlaying: Pair<Int,WeatherManager.Forecast>? = null
+    var currentlyPlaying: TrackInfo? = null
         private set
 
     /**
@@ -76,22 +73,13 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
     /**
      * change track according to current hour of the day.
      */
-    fun changeTrackID(forecast: WeatherManager.Forecast) {
-        val hour = getHour24()
-        val key = Pair(hour,forecast.weather)
-        this.trackID = key
+    fun changeTrackID(nextTrack: TrackInfo) {
+        val key = nextTrack.trackID
 
         val previousTrack = this.currentlyPlaying
-        this.currentlyPlaying = Pair(hour,forecast)
+        this.currentlyPlaying = nextTrack
 
-        if (previousTrack != null) {
-            if (!(previousTrack.first == key.first)) {
-                changeTracks(tracks[key] ?: 0)
-            }
-        } else {
-            changeTracks(tracks[key] ?: 0)
-        }
-
+        if (previousTrack == null || previousTrack.hour != key.hour) changeTracks(tracks[key] ?: 0)
     }
 
     /**
@@ -101,7 +89,6 @@ class MusicManager(private val ctx: Context, private val tracks: Map<Pair<Int,AC
      * but does NOT play the hourly chime.
      */
     fun play() {
-        //todo: for the love of god, check this for state/synchronization bugs
         if (player?.isPlaying == false) player?.start()
         updateBlock?.invoke(this)
         didChangeBlock?.invoke()
@@ -185,5 +172,20 @@ fun getHour24() = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
 
 fun msToNextHour(): Long {
     return 3600000 - Date().time % 3600000
+}
+
+fun trackDisplayName(track: TrackID?): String {
+    if (track == null) return ""
+    var twelveHour = track.hour % 12
+    if (twelveHour == 0) twelveHour = 12
+    val ampm = if (track.hour >= 12) "AM" else "PM"
+    val weather = when (track.weather) {
+        ACWeather.SUNNY -> "Sunny"
+        ACWeather.RAINY -> "Rainy"
+        ACWeather.SNOWY -> "Snowy"
+    }
+    val gameName = "New Leaf"
+
+    return "$twelveHour$ampm, $weather ($gameName)"
 }
 

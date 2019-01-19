@@ -34,6 +34,7 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
 
     }
 
+    private var permissionsRequested = false
     private lateinit var serviceIntent: Intent
 
     /**
@@ -41,7 +42,6 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION),0)
 
         serviceIntent = Intent(this, MusicPlayerService::class.java).setAction(MUSIC_SERVICE)
 
@@ -53,24 +53,37 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
             startService(playPauseIntent)
         }
     }
-
-    override fun onResume() {
-        super.onResume()
+    private fun connectToService() {
         if (service == null) this.startForegroundService(serviceIntent)
         this.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>?,
+        grantResults: IntArray?
+    ) {
+        permissionsRequested = true
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!permissionsRequested) this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 0)
+        else connectToService()
+    }
+
     override fun onPause() {
         super.onPause()
-        this.unbindService(connection)
+        if (service != null) this.unbindService(connection)
     }
 
 
-    override fun update(track: Pair<Int,WeatherManager.Forecast>, state: MusicManager.State) {
+    override fun update(track: TrackInfo, state: MusicManager.State) {
         this.runOnUiThread {
-            val time = track.first
-            val forecast = track.second
-            display.setText("$time ${forecast.weather.name} ${if (forecast.connection is WeatherManager.Connectivity.ONLINE) "ONLINE ${forecast.connection.location}" else "OFFLINE"}")
+            val time = track.hour
+            val forecast = track.forecast
+            display.setText("${trackDisplayName(track.trackID)}\n${if (forecast.connection is WeatherManager.Connectivity.ONLINE) "ONLINE using: ${forecast.connection.location}" else "OFFLINE due to: ${(forecast.connection as WeatherManager.Connectivity.OFFLINE).error.message}"}")
             playPause.setText(state.uiPlayPauseString())
         }
     }
