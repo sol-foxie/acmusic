@@ -14,7 +14,7 @@ class DarkSkyApi(private val key: String): WeatherManager.RemoteAPI(key) {
 
     override fun parseResponse(result: String): ACWeather {
         val obj = parser.parse(StringBuilder(result)) as JsonObject
-        val icon = obj.obj("hourly")?.string("icon")
+        val icon = obj.obj("currently")?.string("icon")
         if (icon == null) throw WeatherManager.WeatherFetchParsingException("key-value TrackID not found!")
         else return when (icon) {
             "rain" -> ACWeather.RAINY
