@@ -178,7 +178,7 @@ fun trackDisplayName(track: TrackID?): String {
     if (track == null) return ""
     var twelveHour = track.hour % 12
     if (twelveHour == 0) twelveHour = 12
-    val ampm = if (track.hour >= 12) "AM" else "PM"
+    val ampm = if (track.hour >= 12) "PM" else "AM"
     val weather = when (track.weather) {
         ACWeather.SUNNY -> "Sunny"
         ACWeather.RAINY -> "Rainy"
