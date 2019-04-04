@@ -82,7 +82,7 @@ class MusicPlayerService: Service() {
 
     private fun makeForegroundServiceNotification(isPlaying: Boolean): Notification {
         val message = if (isPlaying) "Currently playing: ${trackDisplayName(manager.currentlyPlaying?.trackID)}" else "Currently paused."
-        val button = if (isPlaying) "pause" else "play"
+        val button = if (isPlaying) "▶️" else "⏸"
         val playPauseIntent = Intent(this,MusicPlayerService::class.java).setAction(MUSIC_SERVICE_PLAY_PAUSE)
         val pPlayPauseIntent = PendingIntent.getService(this,0,playPauseIntent,PendingIntent.FLAG_UPDATE_CURRENT)
         val playPauseAction = Notification.Action.Builder(R.drawable.play,button,pPlayPauseIntent).build()
