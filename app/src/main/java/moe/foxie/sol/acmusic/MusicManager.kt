@@ -8,6 +8,10 @@ import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.SystemClock
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 /**
  * MusicManager plays tracks provided, synced to the hour of day and the weather.
@@ -79,7 +83,14 @@ class MusicManager(private val ctx: Context, private val tracks: Map<TrackID,Int
         val previousTrack = this.currentlyPlaying
         this.currentlyPlaying = nextTrack
 
-        if (previousTrack == null || previousTrack.hour != key.hour) changeTracks(tracks[key] ?: 0)
+        val thePlayer = player
+        if (previousTrack == null || previousTrack.hour != key.hour) {
+            if (thePlayer != null) {
+                (MediaFader(thePlayer) { changeTracks(tracks[key] ?: 0) }).fadeout()
+            } else {
+                changeTracks(tracks[key] ?: 0)
+            }
+        }
     }
 
     /**
@@ -189,3 +200,30 @@ fun trackDisplayName(track: TrackID?): String {
     return "$twelveHour$ampm, $weather ($gameName)"
 }
 
+class MediaFader(private val player: MediaPlayer, private val completionBlock: () -> Unit) {
+
+    private val interval: Long = 100 //milliseconds
+    private val step = 0.1F
+    private var volume = 1.0F
+    private val executor = Executors.newSingleThreadScheduledExecutor()
+    private var handle: ScheduledFuture<*>? = null
+
+    fun fadeout() {
+        if (handle == null) {
+            handle = executor.scheduleAtFixedRate({ tick() }, 0, interval, TimeUnit.MILLISECONDS)
+        }
+    }
+
+    private fun tick() {
+        volume -= step
+        volume = max(volume, 0F)
+        this.player.setVolume(volume, volume)
+        if (volume == 0F) {
+            handle?.cancelGracefully()
+            completionBlock()
+        }
+    }
+
+}
+
+fun ScheduledFuture<*>.cancelGracefully() = this.cancel(false)
