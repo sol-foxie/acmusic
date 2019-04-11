@@ -22,7 +22,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Settings"
-                  android:parentActivityName=".MainActivity"/>
+                  android:parentActivityName=".MainActivity"
+                  android:label="@string/settings_activity_label"/>
         <service android:name=".MusicPlayerService"
                  android:stopWithTask="true"/>
     </application>

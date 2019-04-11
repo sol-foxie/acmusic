@@ -5,4 +5,5 @@
     <string name="error">ERROR</string>
     <string name="foreground_notification_playing">Currently playing</string>
     <string name="foreground_notification_paused">Currently paused</string>
+    <string name="settings_activity_label">Settings</string>
 </resources>
