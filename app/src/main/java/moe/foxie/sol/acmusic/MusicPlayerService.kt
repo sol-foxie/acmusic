@@ -144,16 +144,6 @@ class MusicPlayerService: Service() {
 
 }
 
-
-const val DOMAIN_PREFIX = "moe.foxie.sol."
-
-const val MUSIC_SERVICE_ONLINE = DOMAIN_PREFIX + "ACTION_MUSIC_SERVICE_ONLINE"
-const val MUSIC_SERVICE_OFFLINE = DOMAIN_PREFIX + "ACTION_MUSIC_SERVICE_OFFLINE"
-const val MUSIC_SERVICE = DOMAIN_PREFIX + "ACTION_MUSIC_SERVICE"
-const val MUSIC_SERVICE_PLAY_PAUSE = DOMAIN_PREFIX + "ACTION_MUSIC_PLAY_PAUSE"
-
-const val SERVICE_NOTIFICATION_CHANNEL = DOMAIN_PREFIX + "SERVICE_NOTIFICATION_CHANNEL"
-
 fun getAPIs(res: Resources): List<WeatherManager.RemoteAPI> {
     return listOf(DarkSkyApi(res.getString(R.string.darkSkyKey)))
 }
