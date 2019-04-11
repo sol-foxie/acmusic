@@ -52,6 +52,11 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
             playPauseIntent.action = MUSIC_SERVICE_PLAY_PAUSE
             startService(playPauseIntent)
         }
+
+        settingsButton.setOnClickListener {
+            val settingsIntent = Intent(this,Settings::class.java)
+            startActivity(settingsIntent)
+        }
     }
     private fun connectToService() {
         if (service == null) this.startForegroundService(serviceIntent)
