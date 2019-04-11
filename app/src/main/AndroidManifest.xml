@@ -21,7 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Settings"></activity>
+        <activity android:name=".Settings"
+                  android:parentActivityName=".MainActivity"/>
         <service android:name=".MusicPlayerService"
                  android:stopWithTask="true"/>
     </application>
