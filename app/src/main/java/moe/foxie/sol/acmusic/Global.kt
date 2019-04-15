@@ -6,7 +6,7 @@ val WOLF_FENCE = "WF"
 
 fun wolfFence(value: String) = Log.d(WOLF_FENCE,value)
 
-const val DOMAIN_PREFIX = "moe.foxie.sol."
+const val DOMAIN_PREFIX = "moe.foxie.sol.acmusic."
 
 const val MUSIC_SERVICE_ONLINE = DOMAIN_PREFIX + "ACTION_MUSIC_SERVICE_ONLINE"
 const val MUSIC_SERVICE_OFFLINE = DOMAIN_PREFIX + "ACTION_MUSIC_SERVICE_OFFLINE"
