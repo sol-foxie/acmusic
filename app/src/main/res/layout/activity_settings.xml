@@ -7,4 +7,63 @@
         android:layout_height="match_parent"
         tools:context=".Settings">
 
+    <Button
+            android:text="Animal Forest"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.1"
+            android:id="@+id/ac64Button"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" app:layout_constraintTop_toBottomOf="@+id/acgcButton"
+            android:textAlignment="viewStart" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"/>
+    <Button
+            android:text="Animal Crossing"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.1"
+            android:id="@+id/acgcButton"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" app:layout_constraintTop_toBottomOf="@+id/acwwButton"
+            android:textAlignment="viewStart" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"/>
+    <Button
+            android:text="Wild World"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.1"
+            android:id="@+id/acwwButton"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" app:layout_constraintTop_toBottomOf="@+id/accfButton"
+            android:textAlignment="viewStart" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"/>
+    <Button
+            android:text="City Folk"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.1"
+            android:id="@+id/accfButton"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" app:layout_constraintTop_toBottomOf="@+id/acnlButton"
+            android:textAlignment="viewStart" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"/>
+    <Button
+            android:text="New Leaf"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.1"
+            android:id="@+id/acnlButton"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/soundtracksLabel" android:textAlignment="viewStart"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"/>
+    <TextView
+            android:text="Soundtracks"
+            app:layout_constraintHeight_percent=".08"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/soundtracksLabel" android:textSize="24sp" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp"/>
 </android.support.constraint.ConstraintLayout>
