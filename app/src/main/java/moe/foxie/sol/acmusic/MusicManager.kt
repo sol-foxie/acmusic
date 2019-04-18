@@ -75,6 +75,15 @@ class MusicManager(private val ctx: Context, private val tracks: Map<TrackID,Int
     }
 
     /**
+     * does cleanup associated with this object.
+     * after calling kill, please discard this object.
+     */
+    fun kill() {
+        player?.discard()
+        ctx.unregisterReceiver(this)
+    }
+
+    /**
      * change track according to current hour of the day.
      */
     fun changeTrackID(nextTrack: TrackInfo) {

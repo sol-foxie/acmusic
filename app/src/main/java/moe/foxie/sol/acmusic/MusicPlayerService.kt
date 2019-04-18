@@ -3,6 +3,7 @@ package moe.foxie.sol.acmusic
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Binder
 import android.os.Handler
@@ -18,6 +19,10 @@ class MusicPlayerService: Service() {
     private val handler = Handler()
     private val serviceIdleKill = { this.stopSelf() }
 
+    private val soundtrackListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+        if (key == SOUNDTRACK_PREFERENCE)
+            switchSoundtracks(prefs.getInt(key, 0))
+    }
     private lateinit var fetcherThread: FetcherThread
     private lateinit var manager: MusicManager
     private lateinit var weather: WeatherManager
@@ -55,13 +60,17 @@ class MusicPlayerService: Service() {
         serviceIsActive = true
         val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+        val prefs = getSharedPreferences(PREFERENCES,Context.MODE_PRIVATE)
+        prefs.registerOnSharedPreferenceChangeListener(soundtrackListener)
 
         weather = WeatherManager(true, this, getAPIs(resources))
 
         manager = MusicManager(this, acnlTracks)
 
-        fetcherThread = FetcherThread(manager,weather)
+        fetcherThread = FetcherThread(weather)
+        fetcherThread.setMusicManager(manager)
         fetcherThread.start()
+
         manager.updateBlock = { fetcherThread.shouldUpdate() }
         manager.didChangeBlock = {
             serviceListener?.update(manager.currentlyPlaying!!, manager.getState())
@@ -137,11 +146,23 @@ class MusicPlayerService: Service() {
             if (!isBound)
                 handler.postDelayed(serviceIdleKill,1000*60)
         } else if (newState == MusicManager.State.PLAYING) {
-            notificationManager.notify(foregroundServiceNotificationId,makeForegroundServiceNotification(true))
+            notificationManager.notify(foregroundServiceNotificationId, makeForegroundServiceNotification(true))
             handler.removeCallbacks(serviceIdleKill)
         }
     }
 
+    fun switchSoundtracks(soundtrack: Int) {
+        val tracks = when (soundtrack) {
+            SOUNDTRACK.WILD_WORLD -> acwwTracks
+            else -> acnlTracks
+        }
+        val newManager = MusicManager(this,tracks)
+        fetcherThread.setMusicManager(newManager)
+        manager.kill()
+        newManager.updateBlock = manager.updateBlock
+        newManager.didChangeBlock = manager.didChangeBlock
+        manager = newManager
+    }
 }
 
 fun getAPIs(res: Resources): List<WeatherManager.RemoteAPI> {

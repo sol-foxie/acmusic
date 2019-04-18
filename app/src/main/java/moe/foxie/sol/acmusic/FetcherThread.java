@@ -10,9 +10,12 @@ public class FetcherThread extends Thread {
 
     private boolean shouldUpdate;
 
-    FetcherThread(MusicManager music, WeatherManager weather) {
-        this.music = music;
+    FetcherThread(WeatherManager weather) {
         this.weather = weather;
+    }
+
+    public void setMusicManager(MusicManager manager) {
+        this.music = manager;
     }
 
     @Override
