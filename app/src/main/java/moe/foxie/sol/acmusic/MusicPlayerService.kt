@@ -154,6 +154,7 @@ class MusicPlayerService: Service() {
     fun switchSoundtracks(soundtrack: Int) {
         val tracks = when (soundtrack) {
             SOUNDTRACK.WILD_WORLD -> acwwTracks
+            SOUNDTRACK.ANIMAL_CROSSING -> afTracks
             else -> acnlTracks
         }
         val newManager = MusicManager(this,tracks)
