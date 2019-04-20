@@ -21,7 +21,7 @@ class MusicPlayerService: Service() {
 
     private val soundtrackListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
         if (key == SOUNDTRACK_PREFERENCE)
-            switchSoundtracks(prefs.getInt(key, 0))
+            switchSoundtracks(prefs.getInt(key, SOUNDTRACK.NEW_LEAF))
     }
     private lateinit var fetcherThread: FetcherThread
     private lateinit var manager: MusicManager
@@ -31,11 +31,11 @@ class MusicPlayerService: Service() {
     set(value) {
         field = value
         val currentTrack = manager.currentlyPlaying
-        if (currentTrack != null) value?.update(currentTrack,manager.getState())
+        if (currentTrack != null) value?.update()
     }
 
     interface ServiceListener {
-        fun update(track: TrackInfo, state: MusicManager.State)
+        fun update()
         fun serviceExited()
     }
 
@@ -65,7 +65,7 @@ class MusicPlayerService: Service() {
 
         weather = WeatherManager(true, this, getAPIs(resources))
 
-        manager = MusicManager(this, acnlTracks)
+        manager = MusicManager(this, getTracks(prefs.getInt(SOUNDTRACK_PREFERENCE,SOUNDTRACK.NEW_LEAF)))
 
         fetcherThread = FetcherThread(weather)
         fetcherThread.setMusicManager(manager)
@@ -73,7 +73,7 @@ class MusicPlayerService: Service() {
 
         manager.updateBlock = { fetcherThread.shouldUpdate() }
         manager.didChangeBlock = {
-            serviceListener?.update(manager.currentlyPlaying!!, manager.getState())
+            serviceListener?.update()
             notificationManager.notify(foregroundServiceNotificationId,this.makeForegroundServiceNotification(manager.getState() == MusicManager.State.PLAYING))
         }
 
@@ -90,7 +90,7 @@ class MusicPlayerService: Service() {
     }
 
     private fun makeForegroundServiceNotification(isPlaying: Boolean): Notification {
-        val message = if (isPlaying) "Currently playing: ${trackDisplayName(manager.currentlyPlaying?.trackID)}" else "Currently paused."
+        val message = if (isPlaying) "Currently playing: ${trackDisplayName()}" else "Currently paused."
         val button = if (isPlaying) "▶️" else "⏸"
         val playPauseIntent = Intent(this,MusicPlayerService::class.java).setAction(MUSIC_SERVICE_PLAY_PAUSE)
         val pPlayPauseIntent = PendingIntent.getService(this,0,playPauseIntent,PendingIntent.FLAG_UPDATE_CURRENT)
@@ -151,13 +151,24 @@ class MusicPlayerService: Service() {
         }
     }
 
-    fun switchSoundtracks(soundtrack: Int) {
-        val tracks = when (soundtrack) {
+    fun trackDisplayName(): String {
+        return this.manager.trackDisplayName()
+    }
+
+    fun getPlayerState(): MusicManager.State {
+        return this.manager.getState()
+    }
+
+    private fun getTracks(soundtrack: Int): HashMap<TrackID,Int> {
+        return when (soundtrack) {
             SOUNDTRACK.WILD_WORLD -> acwwTracks
             SOUNDTRACK.ANIMAL_CROSSING -> afTracks
             else -> acnlTracks
         }
-        val newManager = MusicManager(this,tracks)
+    }
+
+    private fun switchSoundtracks(soundtrack: Int) {
+        val newManager = MusicManager(this,getTracks(soundtrack))
         fetcherThread.setMusicManager(newManager)
         manager.kill()
         newManager.updateBlock = manager.updateBlock

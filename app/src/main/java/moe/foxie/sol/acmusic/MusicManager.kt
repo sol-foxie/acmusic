@@ -180,6 +180,27 @@ class MusicManager(private val ctx: Context, private val tracks: Map<TrackID,Int
     interface TrackChangeListener {
         fun trackDidChange()
     }
+
+    fun trackDisplayName(): String {
+        val track = this.currentlyPlaying?.trackID
+        if (track == null) return ""
+        var twelveHour = track.hour % 12
+        if (twelveHour == 0) twelveHour = 12
+        val ampm = if (track.hour >= 12) "PM" else "AM"
+        val weather = when (track.weather) {
+            ACWeather.SUNNY -> "Sunny"
+            ACWeather.RAINY -> "Rainy"
+            ACWeather.SNOWY -> "Snowy"
+        }
+        val gameName = when(tracks) {
+            acnlTracks -> "New Leaf"
+            acwwTracks -> "Wild World"
+            afTracks -> "Animal Crossing"
+            else -> ""
+        }
+
+        return "$twelveHour$ampm, $weather ($gameName)"
+    }
 }
 
 fun MediaPlayer.discard() {
@@ -194,20 +215,6 @@ fun msToNextHour(): Long {
     return 3600000 - Date().time % 3600000
 }
 
-fun trackDisplayName(track: TrackID?): String {
-    if (track == null) return ""
-    var twelveHour = track.hour % 12
-    if (twelveHour == 0) twelveHour = 12
-    val ampm = if (track.hour >= 12) "PM" else "AM"
-    val weather = when (track.weather) {
-        ACWeather.SUNNY -> "Sunny"
-        ACWeather.RAINY -> "Rainy"
-        ACWeather.SNOWY -> "Snowy"
-    }
-    val gameName = "New Leaf"
-
-    return "$twelveHour$ampm, $weather ($gameName)"
-}
 
 class MediaFader(private val player: MediaPlayer, private val completionBlock: () -> Unit) {
 

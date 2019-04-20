@@ -26,6 +26,7 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             require(binder is MusicPlayerService.ServiceBinder)
             service = binder.service()
+            update()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -83,13 +84,14 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
         if (service != null) this.unbindService(connection)
     }
 
-
-    override fun update(track: TrackInfo, state: MusicManager.State) {
+    override fun update() {
         this.runOnUiThread {
-            val time = track.hour
-            val forecast = track.forecast
-            display.setText("${trackDisplayName(track.trackID)}\n${if (forecast.connection is WeatherManager.Connectivity.ONLINE) "ONLINE using: ${forecast.connection.location}" else "OFFLINE due to: ${(forecast.connection as WeatherManager.Connectivity.OFFLINE).error.message}"}")
-            playPause.setText(state.uiPlayPauseString())
+
+            service?.let {
+                display.text = it.trackDisplayName()
+                playPause.setText(it.getPlayerState().uiPlayPauseString())
+            }
+
         }
     }
 
