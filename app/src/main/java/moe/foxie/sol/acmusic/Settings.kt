@@ -21,7 +21,6 @@ class Settings : Activity() {
 
 
         acnlButton.setOnClickListener { saveSoundtrack(SOUNDTRACK.NEW_LEAF)        }
-        accfButton.setOnClickListener { saveSoundtrack(SOUNDTRACK.CITY_FOLK)       }
         acwwButton.setOnClickListener { saveSoundtrack(SOUNDTRACK.WILD_WORLD)      }
         acgcButton.setOnClickListener { saveSoundtrack(SOUNDTRACK.ANIMAL_CROSSING) }
 
@@ -35,11 +34,10 @@ class Settings : Activity() {
 
     private fun updateSelectedButton() {
         val soundtrack = prefs.getInt(SOUNDTRACK_PREFERENCE,SOUNDTRACK.NEW_LEAF)
-        for (b in arrayOf(acnlButton,accfButton,acwwButton,acgcButton)) b.isEnabled = true
+        for (b in arrayOf(acnlButton,acwwButton,acgcButton)) b.isEnabled = true
 
         when (soundtrack) {
             SOUNDTRACK.NEW_LEAF -> acnlButton
-            SOUNDTRACK.CITY_FOLK -> accfButton
             SOUNDTRACK.WILD_WORLD -> acwwButton
             SOUNDTRACK.ANIMAL_CROSSING -> acgcButton
             else -> null
