@@ -175,6 +175,13 @@ class MusicPlayerService: Service() {
         newManager.didChangeBlock = manager.didChangeBlock
         manager = newManager
     }
+
+    fun isOnline(): Boolean {
+        return manager.currentlyPlaying?.forecast?.connection.let {
+            it != null && it is WeatherManager.Connectivity.ONLINE
+        }
+    }
+
 }
 
 fun getAPIs(res: Resources): List<WeatherManager.RemoteAPI> {
