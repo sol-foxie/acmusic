@@ -208,7 +208,7 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
 fun UNREACHABLE(): Nothing = throw IllegalStateException()
 
 fun <T> chooseWithProbability(total: Int, vararg odds: Pair<T,Int>): T {
-    require(total > 0 && odds.all { (_,odd) ->  odd > 0})
+    require(total > 0)
     require(odds.fold(0) { n, (_,odd) -> n + odd } == total)
 
     val roll = Random.nextInt(total)
