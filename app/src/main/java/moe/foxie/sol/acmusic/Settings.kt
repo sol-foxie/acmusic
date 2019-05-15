@@ -2,6 +2,7 @@ package moe.foxie.sol.acmusic
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_settings.*
@@ -26,6 +27,11 @@ class Settings : Activity() {
 
         prefs.registerOnSharedPreferenceChangeListener(listener)
         updateSelectedButton()
+
+        attributionsButton.setOnClickListener {
+            val attributionsIntent = Intent(this, Attributions::class.java)
+            startActivity(attributionsIntent)
+        }
     }
 
     private fun saveSoundtrack(soundtrack: Int) {

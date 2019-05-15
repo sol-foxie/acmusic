@@ -17,14 +17,24 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Settings"
-                  android:parentActivityName=".MainActivity"
-                  android:label="@string/settings_activity_label"/>
-        <service android:name=".MusicPlayerService"
-                 android:stopWithTask="true"/>
+        <activity
+                android:name=".Settings"
+                android:label="@string/settings_activity_label"
+                android:parentActivityName=".MainActivity"/>
+
+        <service
+                android:name=".MusicPlayerService"
+                android:stopWithTask="true"/>
+
+        <activity
+                android:name=".Attributions"
+                android:label="@string/title_activity_attributions"
+                android:parentActivityName=".Settings">
+        </activity>
     </application>
 
 </manifest>

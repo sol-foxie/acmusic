@@ -47,4 +47,10 @@
             android:textAlignment="viewStart" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="16dp"
             app:layout_constraintHorizontal_bias="0.0" app:layout_constraintTop_toBottomOf="@+id/acnlButton"/>
+    <Button
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:id="@+id/attributionsButton"
+            android:background="@drawable/ic_info_outline_black_24dp" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>

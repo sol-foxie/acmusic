@@ -6,4 +6,21 @@
     <string name="foreground_notification_playing">Currently playing</string>
     <string name="foreground_notification_paused">Currently paused</string>
     <string name="settings_activity_label">Settings</string>
+    <string name="title_activity_debug">Debug</string>
+    <string name="title_activity_attributions">Attributions</string>
+    <string name="attributions_chrome_extension">
+        Based on the \"Animal Crossing Music\" browser extension:\nhttps://github.com/JdotCarver/Animal-Crossing-Music-Extension#
+    </string>
+    <string name="attributions_nook_extension">
+        Uses ripped music from Animal Crossing that was distributed alongside the \"Nook\" browser extension:\nhttps://github.com/matlsn/nook/tree/master/src
+    </string>
+    <string name="attributions_nintendo">
+        \"Animal Crossing\" and ripped music assets from that game are property of Nintendo and composed by Kazumi Totaka.
+    </string>
+    <string name="attributions_commission">
+        Created by sol@vulpine.club for eightbitsamurai@elekk.xyz
+    </string>
+    <string name="attributions_contact">
+        Find a bug? Have a question? Email sol@foxie.moe!
+    </string>
 </resources>
