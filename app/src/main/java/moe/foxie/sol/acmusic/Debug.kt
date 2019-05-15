@@ -11,13 +11,13 @@ class Debug : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_debug)
-        refreshButton.setOnClickListener { refresh() }
-        refreshButton.performClick()
+        refresh()
     }
 
     fun refresh() {
         connectionDisplay.text = DEBUG_STATS.CURRENT_MODE.toString()
         latLongDisplay.text = "lat: ${DEBUG_STATS.CURRENT_LATLONG?.first} long: ${DEBUG_STATS.CURRENT_LATLONG?.second}"
         trackNameDisplay.text = DEBUG_STATS.CURRENT_TRACK
+        offlineExceptionDisplay.text = DEBUG_STATS.CURRENT_OFFLINE_EXCEPTION.toString()
     }
 }

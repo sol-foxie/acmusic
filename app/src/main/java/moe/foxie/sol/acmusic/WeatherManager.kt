@@ -67,6 +67,7 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
             val location = getCurrentLocation()
             Forecast(Connectivity.ONLINE(location), onlineWeather(location)) //network request that can throw
         } catch (e: WeatherFetchFailureException) {
+            DEBUG_STATS.CURRENT_OFFLINE_EXCEPTION = e
             Forecast(Connectivity.OFFLINE(e), offlineWeather())
         }
     }
