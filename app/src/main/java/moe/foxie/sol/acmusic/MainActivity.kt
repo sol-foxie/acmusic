@@ -75,7 +75,7 @@ class MainActivity : Activity(), MusicPlayerService.ServiceListener {
 
     override fun onResume() {
         super.onResume()
-        if (!permissionsRequested) this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 0)
+        if (!permissionsRequested) this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 0)
         else connectToService()
     }
 

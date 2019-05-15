@@ -139,7 +139,7 @@ class WeatherManager(val onlineMode: Boolean, private val context: Context, priv
         try {
             //todo: check if we have permissions instead of assuming we have them.
             val location = Tasks.await(locationProvider.lastLocation)
-            if (location != null) return LatLong(location.latitude, location.longitude)
+            if (location != null) return TRACE_LatLong(LatLong(location.latitude, location.longitude))
             throw WeatherFetchNoLocationException()
         } catch (e: ExecutionException) {
             check(e.cause is SecurityException)

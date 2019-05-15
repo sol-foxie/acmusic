@@ -31,6 +31,10 @@ class Settings : Activity() {
             val attributionsIntent = Intent(this, Attributions::class.java)
             startActivity(attributionsIntent)
         }
+        debugButton.setOnClickListener {
+            val debugIntent = Intent(this, Debug::class.java)
+            startActivity(debugIntent)
+        }
     }
 
     private fun saveSoundtrack(soundtrack: Int) {

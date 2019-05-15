@@ -92,6 +92,8 @@ class MusicManager(private val ctx: Context, private val tracks: Map<TrackID,Int
         val previousTrack = this.currentlyPlaying
         this.currentlyPlaying = nextTrack
 
+        DEBUG_STATS.CURRENT_MODE = this.currentlyPlaying?.forecast?.connection
+
         val thePlayer = player
         if (previousTrack == null || previousTrack.hour != key.hour) {
             if (thePlayer != null) {
@@ -136,6 +138,8 @@ class MusicManager(private val ctx: Context, private val tracks: Map<TrackID,Int
      */
     private fun changeTracks(trackRes: Int) {
         player?.discard()
+
+        DEBUG_STATS.CURRENT_TRACK = ctx.resources.getResourceName(trackRes)
 
         player = MediaPlayer.create(ctx,trackRes)
         player!!.isLooping = true
