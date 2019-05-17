@@ -10,7 +10,7 @@
     <Button
             android:text="@string/play"
             android:layout_width="121dp"
-            android:layout_height="112dp"
+            android:layout_height="121dp"
             android:id="@+id/playPause"
             style="@android:style/Widget.Material.Button.Colored"
             app:layout_constraintStart_toStartOf="parent"
